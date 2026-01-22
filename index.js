@@ -25,6 +25,9 @@ app.use(helmet());
 // Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
+} else {
+    // Force production settings if not explicitly development
+    process.env.NODE_ENV = 'production';
 }
 
 // Basic route
