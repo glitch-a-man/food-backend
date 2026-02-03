@@ -46,6 +46,10 @@ app.use('/api/menus', require('./routes/menuRoutes'));
 
 // Menu Item routes
 app.use('/api/menu-items', require('./routes/menuItemRoutes'));
+app.use('/api/menu-item', require('./routes/menuItemRoutes'));
+
+// Reel routes
+app.use('/api/reels', require('./routes/reelRoutes'));
 
 const PORT = process.env.PORT || 5000;
 

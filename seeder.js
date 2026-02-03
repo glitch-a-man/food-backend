@@ -11,6 +11,7 @@ const Restaurant = require('./models/Restaurant');
 const Menu = require('./models/Menu');
 const MenuItem = require('./models/MenuItem');
 const User = require('./models/User');
+const Reel = require('./models/Reel');
 
 // Connect to DB
 mongoose.connect(process.env.MONGODB_URI);
@@ -27,6 +28,7 @@ const importData = async () => {
         await Restaurant.deleteMany();
         await Menu.deleteMany();
         await MenuItem.deleteMany();
+        await Reel.deleteMany();
 
         console.log('Restaurant and Menu data destroyed...');
 
@@ -79,7 +81,19 @@ const importData = async () => {
                 restaurant: restaurant._id
             }));
 
-            await MenuItem.insertMany(itemsWithIds);
+            const menuItems = await MenuItem.insertMany(itemsWithIds);
+
+            // 4. Create Reels for items that have videoUrl
+            const reelEntries = menuItems
+                .filter(item => item.videoUrl)
+                .map(item => ({
+                    videoUrl: item.videoUrl,
+                    menuItemId: item._id
+                }));
+
+            if (reelEntries.length > 0) {
+                await Reel.insertMany(reelEntries);
+            }
         }
 
         console.log('Data Imported Successfully!');
@@ -96,6 +110,7 @@ const deleteData = async () => {
         await Restaurant.deleteMany();
         await Menu.deleteMany();
         await MenuItem.deleteMany();
+        await Reel.deleteMany();
 
         console.log('Data Destroyed...');
         process.exit();

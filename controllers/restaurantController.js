@@ -1,4 +1,6 @@
 const Restaurant = require('../models/Restaurant');
+const MenuItem = require('../models/MenuItem');
+const Reel = require('../models/Reel');
 
 // @desc    Get all restaurants
 // @route   GET /api/restaurants
@@ -21,7 +23,21 @@ exports.getRestaurant = async (req, res) => {
         if (!restaurant) {
             return res.status(404).json({ success: false, message: 'Restaurant not found' });
         }
-        res.status(200).json({ success: true, data: restaurant });
+
+        // Fetch all menu items for this restaurant
+        const menuItems = await MenuItem.find({ restaurant: req.params.id });
+
+        // Fetch all reels for these menu items
+        const reels = await Reel.find({ menuItemId: { $in: menuItems.map(item => item._id) } }).populate('menuItemId');
+
+        res.status(200).json({
+            success: true,
+            data: {
+                ...restaurant._doc,
+                menuItems,
+                reels
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
